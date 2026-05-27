@@ -1,0 +1,28 @@
+bluesky:
+  accounts:
+    - figma.com
+    - framer.com
+    - soren.bsky.social
+    - mkbhd.com
+    - fonsmans.com
+    - anthropic.com
+    - builtformars.bsky.social
+  topics:
+    - "ux design"
+    - "ui design"
+    - "figma"
+    - "product design"
+    - "product psychology"
+    - "#designsystems"
+    - "#uxdesign"
+
+rss:
+  feeds:
+    - url: https://rittenhouseramblings.com/feed/
+      name: Rittenhouse Ramblings
+    - url: https://www.lennysnewsletter.com/feed
+      name: "Lenny's Newsletter"
+
+email:
+  subject_prefix: "Media Digest"
+  max_items_per_section: 10

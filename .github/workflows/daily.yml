@@ -1,0 +1,32 @@
+name: Daily Media Digest
+
+on:
+  schedule:
+    # 8am ET = noon UTC (Mon-Fri)
+    # During EDT (Mar-Nov): 8am ET = 12:00 UTC
+    # During EST (Nov-Mar): 8am ET = 13:00 UTC
+    # Using 12:00 UTC for EDT; adjust to '0 13 * * 1-5' in winter if needed
+    - cron: '0 12 * * 1-5'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send digest email
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+          BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
+          BSKY_APP_PASSWORD: ${{ secrets.BSKY_APP_PASSWORD }}
+        run: python src/main.py
