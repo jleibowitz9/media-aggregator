@@ -129,6 +129,11 @@ def _extract_post(post_view: dict, lookback_hours: int = DEFAULT_LOOKBACK_HOURS)
     if not text:
         return None
 
+    # Only include English posts
+    langs = record.get("langs", [])
+    if langs and "en" not in langs:
+        return None
+
     # Extract embed media
     embed_data = _extract_embed(post)
 
@@ -204,7 +209,7 @@ def search_topic_posts(query: str, auth_token: Optional[str] = None, limit: int 
     try:
         resp = requests.get(
             f"{AUTH_URL}/app.bsky.feed.searchPosts",
-            params={"q": query, "sort": "top", "limit": limit},
+            params={"q": query, "sort": "top", "limit": limit, "lang": "en"},
             headers={"Authorization": f"Bearer {auth_token}"},
             timeout=15,
         )

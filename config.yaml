@@ -28,8 +28,8 @@ bluesky:
     - "product psychology"
     - "design leadership"
 
-  # Minimum engagement for topic search results (filters out noise)
-  min_topic_engagement: 10
+  # Minimum engagement for topic search results (quality over quantity)
+  min_topic_engagement: 25
 
   # Words that indicate low-quality posts (job ads, self-promo, etc.)
   skip_patterns:
@@ -50,6 +50,8 @@ rss:
       name: Rittenhouse Ramblings
     - url: https://www.lennysnewsletter.com/feed
       name: "Lenny's Newsletter"
+    - url: https://blog.duolingo.com/hub/design/rss/
+      name: Duolingo Design
 
 email:
   subject_prefix: "Media Digest"
