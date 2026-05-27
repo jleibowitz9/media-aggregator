@@ -179,6 +179,29 @@
     color: #a1a1aa;
   }
 
+  /* Quote post */
+  .bsky-quote {
+    margin: 8px 0 4px;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: #fafafa;
+  }
+  .bsky-quote-meta {
+    margin: 0 0 4px;
+    font-size: 12px;
+    color: #71717a;
+  }
+  .bsky-quote-meta strong {
+    color: #3f3f46;
+  }
+  .bsky-quote-text {
+    margin: 0;
+    font-size: 13px;
+    color: #3f3f46;
+    line-height: 1.4;
+  }
+
   /* Trending tag */
   .trending-tag {
     display: inline-block;
@@ -274,6 +297,15 @@
           <img src="{{ post.video_thumbnail }}" alt="Video thumbnail" />
           <span class="bsky-play-badge">Video</span>
         </a>
+      </div>
+      {% endif %}
+
+      {% if post.quote %}
+      <div class="bsky-quote">
+        <p class="bsky-quote-meta">
+          <strong>{{ post.quote.display_name }}</strong> &middot; @{{ post.quote.author }}
+        </p>
+        <p class="bsky-quote-text">{{ post.quote.text[:300] }}{% if post.quote.text|length > 300 %}...{% endif %}</p>
       </div>
       {% endif %}
 

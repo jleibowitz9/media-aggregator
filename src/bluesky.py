@@ -55,12 +55,41 @@ def _is_recent(ts_str: str, hours: int = DEFAULT_LOOKBACK_HOURS) -> bool:
     return ts >= cutoff
 
 
+def _extract_quote(record: dict) -> Optional[dict]:
+    """Extract quoted post data from a record embed."""
+    author = record.get("author", {})
+    handle = author.get("handle", "")
+    display_name = author.get("displayName", handle)
+    value = record.get("value", {})
+    text = value.get("text", "").strip()
+
+    if not text or not handle:
+        return None
+
+    # Build URL for the quoted post
+    uri = record.get("uri", "")
+    rkey = uri.split("/")[-1] if uri else ""
+
+    return {
+        "author": handle,
+        "display_name": display_name,
+        "text": text,
+        "url": _post_url(handle, rkey) if rkey else "",
+    }
+
+
 def _extract_embed(post: dict) -> dict:
-    """Extract embed media (images, video thumbnail, link card) from a post."""
+    """Extract embed media (images, video thumbnail, link card, quote post) from a post."""
     embed = post.get("embed", {})
     embed_type = embed.get("$type", "")
 
-    result = {"embed_type": None, "images": [], "video_thumbnail": None, "external": None}
+    result = {
+        "embed_type": None,
+        "images": [],
+        "video_thumbnail": None,
+        "external": None,
+        "quote": None,
+    }
 
     if embed_type == "app.bsky.embed.images#view":
         result["embed_type"] = "images"
@@ -84,6 +113,14 @@ def _extract_embed(post: dict) -> dict:
             "thumb": ext.get("thumb", ""),
         }
 
+    elif embed_type == "app.bsky.embed.record#view":
+        # Pure quote post (no additional media)
+        record = embed.get("record", {})
+        quote = _extract_quote(record)
+        if quote:
+            result["embed_type"] = "quote"
+            result["quote"] = quote
+
     # Handle record-with-media (quote post + images/video)
     elif embed_type == "app.bsky.embed.recordWithMedia#view":
         media = embed.get("media", {})
@@ -98,6 +135,13 @@ def _extract_embed(post: dict) -> dict:
         elif media_type == "app.bsky.embed.video#view":
             result["embed_type"] = "video"
             result["video_thumbnail"] = media.get("thumbnail", "")
+
+        # Also extract the quoted record from record-with-media
+        record_embed = embed.get("record", {}).get("record", {})
+        if record_embed:
+            quote = _extract_quote(record_embed)
+            if quote:
+                result["quote"] = quote
 
     return result
 
@@ -152,6 +196,7 @@ def _extract_post(post_view: dict, lookback_hours: int = DEFAULT_LOOKBACK_HOURS)
         "images": embed_data["images"],
         "video_thumbnail": embed_data["video_thumbnail"],
         "external": embed_data["external"],
+        "quote": embed_data["quote"],
     }
 
 
