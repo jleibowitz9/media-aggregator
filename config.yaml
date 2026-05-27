@@ -1,20 +1,48 @@
 bluesky:
   accounts:
+    # Design tools & products
     - figma.com
     - framer.com
-    - soren.bsky.social
-    - mkbhd.com
-    - fonsmans.com
-    - anthropic.com
-    - builtformars.bsky.social
+    - emilkowal.ski                # Emil Kowalski — design engineer at Linear
+
+    # Design leaders & thinkers
+    - soren.bsky.social          # Soren Iverson — satirical design commentary
+    - mkbhd.com                  # Marques Brownlee — tech & product reviews
+    - fonsmans.com               # Fons Mans — Offgrid founder, type & brand
+    - anthropic.com              # Anthropic — AI product updates
+    - builtformars.bsky.social   # Built for Mars — UX case studies
+    - brianlovin.com             # Brian Lovin — Campsite co-founder, design eng
+    - bradfrost.com              # Brad Frost — design systems, atomic design
+    - dburka.bsky.social         # Daniel Burka — product design, healthtech
+    - charlimarie.bsky.social    # Charli Marie — creative director at Kit
+    - johnmaeda.bsky.social      # John Maeda — design & technology thought leader
+    - lynnandtonic.com           # Lynn Fisher — web designer, creative coding
+
   topics:
-    - "ux design"
-    - "ui design"
-    - "figma"
-    - "product design"
+    # Specific enough to surface quality content
+    - "mobile app redesign"
+    - "product design lessons"
+    - "design system announcement"
+    - "UX case study"
+    - "app design update"
     - "product psychology"
-    - "#designsystems"
-    - "#uxdesign"
+    - "design leadership"
+
+  # Minimum engagement for topic search results (filters out noise)
+  min_topic_engagement: 10
+
+  # Words that indicate low-quality posts (job ads, self-promo, etc.)
+  skip_patterns:
+    - "hiring"
+    - "we're looking for"
+    - "job opening"
+    - "apply now"
+    - "DM me"
+    - "follow me"
+    - "link in bio"
+    - "check out my"
+    - "I'm available for"
+    - "open for freelance"
 
 rss:
   feeds:

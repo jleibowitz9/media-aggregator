@@ -5,6 +5,7 @@ Set BSKY_HANDLE and BSKY_APP_PASSWORD env vars to enable topic search.
 """
 
 import os
+import re
 import requests
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -12,6 +13,22 @@ from typing import Optional
 BASE_URL = "https://public.api.bsky.app/xrpc"
 AUTH_URL = "https://bsky.social/xrpc"
 DEFAULT_LOOKBACK_HOURS = 24
+
+# Compiled at module load for performance
+_skip_patterns_compiled: Optional[list] = None
+
+
+def _compile_skip_patterns(patterns: list[str]) -> list[re.Pattern]:
+    """Compile skip patterns into case-insensitive regexes."""
+    return [re.compile(re.escape(p), re.IGNORECASE) for p in patterns]
+
+
+def _should_skip(text: str, patterns: list[re.Pattern]) -> bool:
+    """Check if a post matches any skip pattern (noise filter)."""
+    for pattern in patterns:
+        if pattern.search(text):
+            return True
+    return False
 
 
 def _post_url(handle: str, rkey: str) -> str:
@@ -196,7 +213,6 @@ def search_topic_posts(query: str, auth_token: Optional[str] = None, limit: int 
         for item in results:
             post = _extract_post(item, lookback_hours=lookback_hours)
             if post:
-                post["topic"] = query  # tag which search surfaced this
                 posts.append(post)
     except requests.RequestException as e:
         print(f"  Warning: Failed to search Bluesky for '{query}': {e}")
@@ -208,9 +224,17 @@ def fetch_bluesky(config: dict, lookback_hours: int = DEFAULT_LOOKBACK_HOURS) ->
     Fetch all Bluesky content based on config.
 
     Returns a list of normalized post dicts, deduplicated by URL.
+    Applies noise filtering and engagement thresholds for topic search.
     """
     all_posts = []
     seen_urls = set()
+
+    # Compile skip patterns once
+    raw_patterns = config.get("skip_patterns", [])
+    skip_patterns = _compile_skip_patterns(raw_patterns) if raw_patterns else []
+    min_topic_engagement = config.get("min_topic_engagement", 0)
+
+    skipped_noise = 0
 
     # Fetch from specific accounts (no auth needed)
     accounts = config.get("accounts", [])
@@ -218,24 +242,43 @@ def fetch_bluesky(config: dict, lookback_hours: int = DEFAULT_LOOKBACK_HOURS) ->
     for handle in accounts:
         posts = fetch_account_posts(handle, lookback_hours=lookback_hours)
         for post in posts:
-            if post["url"] not in seen_urls:
-                seen_urls.add(post["url"])
-                all_posts.append(post)
+            if post["url"] in seen_urls:
+                continue
+            if skip_patterns and _should_skip(post["text"], skip_patterns):
+                skipped_noise += 1
+                continue
+            seen_urls.add(post["url"])
+            all_posts.append(post)
 
     # Search by topic (requires auth)
     topics = config.get("topics", [])
     if topics:
         auth_token = _create_session()
         if auth_token:
-            print(f"Searching Bluesky for {len(topics)} topics...")
+            print(f"Searching Bluesky for {len(topics)} topics (min engagement: {min_topic_engagement})...")
+            topic_found = 0
+            topic_filtered = 0
             for topic in topics:
                 posts = search_topic_posts(topic, auth_token=auth_token, limit=15, lookback_hours=lookback_hours)
                 for post in posts:
-                    if post["url"] not in seen_urls:
-                        seen_urls.add(post["url"])
-                        all_posts.append(post)
+                    if post["url"] in seen_urls:
+                        continue
+                    if skip_patterns and _should_skip(post["text"], skip_patterns):
+                        skipped_noise += 1
+                        continue
+                    if post["engagement"] < min_topic_engagement:
+                        topic_filtered += 1
+                        continue
+                    seen_urls.add(post["url"])
+                    post["topic"] = topic
+                    all_posts.append(post)
+                    topic_found += 1
+            print(f"  Topic search: {topic_found} quality posts kept, {topic_filtered} below engagement threshold")
         else:
             print("  Skipping topic search (set BSKY_HANDLE and BSKY_APP_PASSWORD to enable)")
+
+    if skipped_noise:
+        print(f"  Filtered out {skipped_noise} noise posts (job ads, self-promo, etc.)")
 
     # Sort by engagement (highest first)
     all_posts.sort(key=lambda p: p["engagement"], reverse=True)
