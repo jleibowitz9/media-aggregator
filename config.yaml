@@ -52,6 +52,8 @@ rss:
       name: "Lenny's Newsletter"
     - url: https://blog.duolingo.com/hub/design/rss/
       name: Duolingo Design
+    - url: https://www.figma.com/release-notes/feed/atom.xml
+      name: Figma Release Notes
 
 email:
   subject_prefix: "Media Digest"
