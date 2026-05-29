@@ -2,11 +2,10 @@ name: Daily Media Digest
 
 on:
   schedule:
-    # 8am ET = noon UTC (Mon-Fri)
-    # During EDT (Mar-Nov): 8am ET = 12:00 UTC
-    # During EST (Nov-Mar): 8am ET = 13:00 UTC
-    # Using 12:00 UTC for EDT; adjust to '0 13 * * 1-5' in winter if needed
-    - cron: '0 12 * * 1-5'
+    # GitHub Actions crons can delay 15-60+ min, so we schedule early.
+    # Target delivery: ~8am ET (EDT = UTC-4, EST = UTC-5)
+    # Scheduling at 11:30 UTC to arrive by 8am EDT with buffer.
+    - cron: '30 11 * * 1-5'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
