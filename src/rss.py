@@ -93,7 +93,20 @@ def _extract_entry(entry: dict, feed_name: str, lookback_hours: int = DEFAULT_LO
     }
 
 
-def fetch_feed(feed_url: str, feed_name: str, lookback_hours: int = DEFAULT_LOOKBACK_HOURS) -> list[dict]:
+def _matches_categories(entry: dict, required_categories: list[str]) -> bool:
+    """Check if an RSS entry has at least one of the required categories."""
+    if not required_categories:
+        return True
+    entry_tags = [t.get("term", "").lower() for t in entry.get("tags", [])]
+    return any(cat.lower() in entry_tags for cat in required_categories)
+
+
+def fetch_feed(
+    feed_url: str,
+    feed_name: str,
+    lookback_hours: int = DEFAULT_LOOKBACK_HOURS,
+    categories: Optional[list[str]] = None,
+) -> list[dict]:
     """Fetch and parse a single RSS feed, returning recent entries."""
     posts = []
     try:
@@ -103,6 +116,8 @@ def fetch_feed(feed_url: str, feed_name: str, lookback_hours: int = DEFAULT_LOOK
             return posts
 
         for entry in feed.entries:
+            if categories and not _matches_categories(entry, categories):
+                continue
             post = _extract_entry(entry, feed_name, lookback_hours=lookback_hours)
             if post:
                 posts.append(post)
@@ -126,7 +141,8 @@ def fetch_rss(config: dict, lookback_hours: int = DEFAULT_LOOKBACK_HOURS) -> lis
     for feed_config in feeds:
         url = feed_config.get("url", "")
         name = feed_config.get("name", url)
-        posts = fetch_feed(url, name, lookback_hours=lookback_hours)
+        categories = feed_config.get("categories")
+        posts = fetch_feed(url, name, lookback_hours=lookback_hours, categories=categories)
         all_posts.extend(posts)
         if posts:
             print(f"  {name}: {len(posts)} new posts")

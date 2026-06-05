@@ -54,6 +54,10 @@ rss:
       name: Duolingo Design
     - url: https://www.figma.com/release-notes/feed/atom.xml
       name: Figma Release Notes
+    - url: https://news.airbnb.com/feed
+      name: Airbnb Product
+      categories:
+        - Product
 
 email:
   subject_prefix: "Media Digest"
