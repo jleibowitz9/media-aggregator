@@ -1,35 +1,23 @@
 bluesky:
   accounts:
-    # Design tools & products
     - figma.com
     - framer.com
-    - emilkowal.ski                # Emil Kowalski — design engineer at Linear
-
-    # Design leaders & thinkers
-    - soren.bsky.social          # Soren Iverson — satirical design commentary
-    - mkbhd.com                  # Marques Brownlee — tech & product reviews
-    - fonsmans.com               # Fons Mans — Offgrid founder, type & brand
-    - anthropic.com              # Anthropic — AI product updates
-    - builtformars.bsky.social   # Built for Mars — UX case studies
-    - brianlovin.com             # Brian Lovin — Campsite co-founder, design eng
-    - bradfrost.com              # Brad Frost — design systems, atomic design
-    - dburka.bsky.social         # Daniel Burka — product design, healthtech
-    - charlimarie.bsky.social    # Charli Marie — creative director at Kit
-    - johnmaeda.bsky.social      # John Maeda — design & technology thought leader
-    - lynnandtonic.com           # Lynn Fisher — web designer, creative coding
+    - anthropic.com
+    - builtformars.bsky.social
 
   topics:
-    # Specific enough to surface quality content
-    - "mobile app redesign"
-    - "product design lessons"
-    - "design system announcement"
-    - "UX case study"
-    - "app design update"
-    - "product psychology"
-    - "design leadership"
+    - "app redesign"
+    - "design system"
+    - "product design case study"
+    - "UX research findings"
+    - "design tokens"
+    - "accessibility audit"
+    - "figma update"
+    - "design ops"
+    - "user testing insights"
+    - "mobile UX"
 
-  # Minimum engagement for topic search results (quality over quantity)
-  min_topic_engagement: 25
+  min_topic_engagement: 10
 
   # Words that indicate low-quality posts (job ads, self-promo, etc.)
   skip_patterns:
@@ -58,7 +46,12 @@ rss:
       name: Airbnb Product
       categories:
         - Product
+    - url: https://daringfireball.net/feeds/main
+      name: Daring Fireball
+    - url: https://www.theverge.com/rss/index.xml
+      name: The Verge
 
 email:
   subject_prefix: "Media Digest"
-  max_items_per_section: 10
+  max_items_per_section: 15
+  max_items_per_feed: 3

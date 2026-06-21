@@ -38,7 +38,7 @@ def main():
     args = parser.parse_args()
 
     config = load_config()
-    print(f"Loaded config with {len(config.get('bluesky', {}).get('accounts', []))} Bluesky accounts")
+    print(f"Loaded config with {len(config.get('bluesky', {}).get('accounts', []))} Bluesky accounts, {len(config.get('bluesky', {}).get('topics', []))} topics")
     print(f"  and {len(config.get('rss', {}).get('feeds', []))} RSS feeds")
 
     lookback_hours = get_lookback_hours()
@@ -61,6 +61,14 @@ def main():
         print(f"Fetched {len(rss_posts)} RSS posts")
     except ImportError:
         print("RSS fetcher not yet implemented, skipping...")
+
+    # Framer updates (no RSS feed available, uses scraper)
+    try:
+        from src.scrapers import fetch_framer_updates
+        framer_posts = fetch_framer_updates(lookback_hours=lookback_hours)
+        rss_posts.extend(framer_posts)
+    except ImportError:
+        print("Scraper not available, skipping Framer updates...")
 
     # Phase 4: Format and send/preview
     try:
