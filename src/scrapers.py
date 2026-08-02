@@ -19,6 +19,7 @@ def fetch_framer_updates(lookback_hours: int = DEFAULT_LOOKBACK_HOURS) -> list[d
     try:
         resp = requests.get(FRAMER_UPDATES_URL, timeout=15)
         resp.raise_for_status()
+        resp.encoding = "utf-8"  # avoid mojibake in apostrophes/quotes
     except requests.RequestException as e:
         print(f"  Warning: Failed to fetch Framer updates: {e}")
         return posts
@@ -43,7 +44,15 @@ def fetch_framer_updates(lookback_hours: int = DEFAULT_LOOKBACK_HOURS) -> list[d
 
         dt_str = time_tag.get("datetime", "")
         pub_date = _parse_iso(dt_str)
-        if not pub_date or pub_date < cutoff:
+        if not pub_date:
+            continue
+        # Framer stamps each update with a date only (midnight UTC) but publishes
+        # them throughout the day. Comparing that midnight timestamp against a
+        # rolling lookback means an update posted after the daily run time looks
+        # >24h old on the next run and gets skipped forever. Treat the timestamp
+        # as end-of-day so an update is reliably caught by the following run.
+        effective_date = pub_date.replace(hour=23, minute=59, second=59)
+        if effective_date < cutoff:
             continue
 
         description = ""

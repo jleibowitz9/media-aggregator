@@ -65,6 +65,16 @@ def _extract_entry(entry: dict, feed_name: str, lookback_hours: int = DEFAULT_LO
     if not title or not link:
         return None
 
+    # Daring Fireball: "linked list" items set the main <link> to the external
+    # article Gruber is commenting on, but expose Gruber's own DF permalink as a
+    # rel="related" link (e.g. https://daringfireball.net/linked/...). Prefer the
+    # DF permalink so we read Gruber's commentary instead of the source article.
+    # Full DF articles have no rel="related" link, so their link is left as-is.
+    for related in entry.get("links", []):
+        if related.get("rel") == "related" and "daringfireball.net" in related.get("href", ""):
+            link = related["href"].strip()
+            break
+
     # Get description — try summary first, then content
     description = ""
     if entry.get("summary"):
