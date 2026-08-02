@@ -1,37 +1,3 @@
-bluesky:
-  accounts:
-    - figma.com
-    - framer.com
-    - anthropic.com
-    - builtformars.bsky.social
-
-  topics:
-    - "app redesign"
-    - "design system"
-    - "product design case study"
-    - "UX research findings"
-    - "design tokens"
-    - "accessibility audit"
-    - "figma update"
-    - "design ops"
-    - "user testing insights"
-    - "mobile UX"
-
-  min_topic_engagement: 10
-
-  # Words that indicate low-quality posts (job ads, self-promo, etc.)
-  skip_patterns:
-    - "hiring"
-    - "we're looking for"
-    - "job opening"
-    - "apply now"
-    - "DM me"
-    - "follow me"
-    - "link in bio"
-    - "check out my"
-    - "I'm available for"
-    - "open for freelance"
-
 rss:
   feeds:
     - url: https://rittenhouseramblings.com/feed/
@@ -53,5 +19,9 @@ rss:
 
 email:
   subject_prefix: "Media Digest"
-  max_items_per_section: 15
+  max_items_per_section: 25
   max_items_per_feed: 3
+  # Per-source overrides to the default max_items_per_feed. The Verge publishes
+  # heavily, so surface more of it each day (its RSS feed holds up to ~10 items).
+  max_items_per_feed_overrides:
+    The Verge: 10

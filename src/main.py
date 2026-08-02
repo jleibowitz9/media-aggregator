@@ -38,20 +38,10 @@ def main():
     args = parser.parse_args()
 
     config = load_config()
-    print(f"Loaded config with {len(config.get('bluesky', {}).get('accounts', []))} Bluesky accounts, {len(config.get('bluesky', {}).get('topics', []))} topics")
-    print(f"  and {len(config.get('rss', {}).get('feeds', []))} RSS feeds")
+    print(f"Loaded config with {len(config.get('rss', {}).get('feeds', []))} RSS feeds")
 
     lookback_hours = get_lookback_hours()
     print(f"Lookback window: {lookback_hours}h ({'Monday — includes weekend' if lookback_hours == 72 else 'standard weekday'})")
-
-    # Phase 2: Bluesky
-    bluesky_posts = []
-    try:
-        from src.bluesky import fetch_bluesky
-        bluesky_posts = fetch_bluesky(config.get("bluesky", {}), lookback_hours=lookback_hours)
-        print(f"Fetched {len(bluesky_posts)} Bluesky posts")
-    except ImportError:
-        print("Bluesky fetcher not yet implemented, skipping...")
 
     # Phase 3: RSS
     rss_posts = []
@@ -76,7 +66,6 @@ def main():
         from src.send import send_digest, preview_digest
 
         digest_data = format_digest(
-            bluesky_posts=bluesky_posts,
             rss_posts=rss_posts,
             config=config.get("email", {}),
         )
@@ -91,10 +80,8 @@ def main():
             send_digest(digest_data, to_email=to_email)
     except ImportError:
         print("Formatter/sender not yet implemented, skipping...")
-        if bluesky_posts or rss_posts:
+        if rss_posts:
             print("\n--- Raw results ---")
-            for post in bluesky_posts[:5]:
-                print(f"  [Bluesky] @{post['author']}: {post['text'][:80]}...")
             for post in rss_posts[:5]:
                 print(f"  [RSS] {post['source']}: {post['title']}")
 
