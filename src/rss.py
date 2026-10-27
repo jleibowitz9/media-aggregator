@@ -60,7 +60,10 @@ def _extract_entry(entry: dict, feed_name: str, lookback_hours: int = DEFAULT_LO
     if not _is_recent(entry, hours=lookback_hours):
         return None
 
-    title = entry.get("title", "").strip()
+    # Some feeds (e.g. The Verge) double-encode entities, so feedparser's single
+    # decode leaves literal "&#8216;" in the title. _strip_html decodes again and
+    # strips any stray markup. Jinja re-escapes on render, so this stays safe.
+    title = _strip_html(entry.get("title", ""))
     link = entry.get("link", "").strip()
     if not title or not link:
         return None

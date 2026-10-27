@@ -112,26 +112,28 @@
     <h1>{{ subject }}</h1>
   </div>
 
-  <!-- Blog Posts (RSS) -->
-  {% if rss_posts %}
+  <!-- One section per source -->
+  {% for section in sections %}
   <div class="section">
-    <p class="section-title">Blog Posts</p>
-    {% for post in rss_posts %}
+    <p class="section-title">{{ section.source }}</p>
+    {% for post in section.posts %}
     <div class="item">
       <p class="item-title">
         <a href="{{ post.url }}" target="_blank" rel="noopener">{{ post.title }}</a>
       </p>
-      <p class="item-meta">{{ post.source }}{% if post.author %} &middot; {{ post.author }}{% endif %}</p>
+      {% if post.author %}
+      <p class="item-meta">{{ post.author }}</p>
+      {% endif %}
       {% if post.description %}
       <p class="item-description">{{ post.description }}</p>
       {% endif %}
     </div>
     {% endfor %}
   </div>
-  {% endif %}
+  {% endfor %}
 
   <!-- Empty state -->
-  {% if not rss_posts %}
+  {% if not sections %}
   <div class="section">
     <p class="empty">No new content found in the last 24 hours. Check back tomorrow.</p>
   </div>

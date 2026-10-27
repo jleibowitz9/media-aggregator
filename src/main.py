@@ -52,22 +52,27 @@ def main():
     except ImportError:
         print("RSS fetcher not yet implemented, skipping...")
 
-    # Framer updates (no RSS feed available, uses scraper)
+    # Sources without a usable RSS feed, fetched via scrapers
     try:
-        from src.scrapers import fetch_framer_updates
-        framer_posts = fetch_framer_updates(lookback_hours=lookback_hours)
-        rss_posts.extend(framer_posts)
+        from src.scrapers import fetch_framer_updates, fetch_airbnb_product
+        rss_posts.extend(fetch_framer_updates(lookback_hours=lookback_hours))
+        rss_posts.extend(fetch_airbnb_product(lookback_hours=lookback_hours))
     except ImportError:
-        print("Scraper not available, skipping Framer updates...")
+        print("Scrapers not available, skipping Framer/Airbnb updates...")
 
     # Phase 4: Format and send/preview
     try:
         from src.formatter import format_digest
         from src.send import send_digest, preview_digest
 
+        # Section order follows config.yaml, with scraped sources appended
+        source_order = [f.get("name", f.get("url", "")) for f in config.get("rss", {}).get("feeds", [])]
+        source_order += ["Framer Updates", "Airbnb Product"]
+
         digest_data = format_digest(
             rss_posts=rss_posts,
             config=config.get("email", {}),
+            source_order=source_order,
         )
 
         if args.preview:

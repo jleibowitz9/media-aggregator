@@ -8,10 +8,8 @@ rss:
       name: Duolingo Design
     - url: https://www.figma.com/release-notes/feed/atom.xml
       name: Figma Release Notes
-    - url: https://news.airbnb.com/feed
-      name: Airbnb Product
-      categories:
-        - Product
+    # Airbnb retired its RSS feed (news.airbnb.com/feed now 404s) — the
+    # newsroom Product category is scraped instead, see src/scrapers.py
     - url: https://daringfireball.net/feeds/main
       name: Daring Fireball
     - url: https://www.theverge.com/rss/index.xml
